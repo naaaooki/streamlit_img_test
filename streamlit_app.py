@@ -111,6 +111,8 @@ if uploaded_files is not None:
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
         for filename, img_bytes in images:
             zip_file.writestr(filename, img_bytes.read())
+    with open('annotated_images.zip', 'wb') as f:
+        f.write(zip_buffer.getvalue())
     st.download_button(
     label="画像をZIPで一括ダウンロード",
     data=zip_buffer,
