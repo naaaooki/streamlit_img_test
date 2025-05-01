@@ -97,7 +97,7 @@ if uploaded_files is not None:
             st.image(annotated_image)
             with zipfile.ZipFile(zip_buffer, "w") as zip_file:
                 filename = image_names[i] if i < len(image_names) else f"image_{i}.png"
-                zip_file.writestr("image.jpg", annotated_image)
+                zip_file.writestr(filename, annotated_image)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
             i = i+1
