@@ -94,18 +94,7 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                for i, image in enumerate(annotated_image):
-                    # ndarray → バイナリ画像データに変換
-                    is_success, buffer = cv2.imencode(".png", image)
-                    if not is_success:
-                        continue  # エンコード失敗したらスキップ
-
-                    image_bytes = buffer.tobytes()
-
-        # ZIPファイルに書き込む（ファイル名指定）
-                    filename = image_names[i] if i < len(image_names) else f"image_{i}.png"
-                    zip_file.writestr(filename, image_bytes)
+            zip_file.writestr("image.jpg"annotated_image)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
     zip_buffer.seek(0)
