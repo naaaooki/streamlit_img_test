@@ -11,6 +11,7 @@ import supervision as sv
 import pandas as pd
 import os
 from supervision.detection.core import Detections
+from PIL import Image
 
 @st.cache_resource
 def load_model(path):
@@ -96,7 +97,7 @@ if uploaded_files is not None:
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
             img_bytes = io.BytesIO()
-            annotated_image.save(img_bytes, format='PNG')
+            annotated_image.save(img_bytes, format='JPG')
             img_bytes.seek(0)  # 読み取り位置を先頭に
             images.append((f"image_{i+0}.png", img_bytes))
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
