@@ -57,7 +57,6 @@ uploaded_files = st.file_uploader("Choose an image...",accept_multiple_files=Tru
 
 ress = []
 images = []
-
 if uploaded_files is not None:
     with st.expander("annotated images"):
         for uploaded_file in uploaded_files:
@@ -93,8 +92,13 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            image_name = os.path.basename(annotated_image)
-            images.append(str(annotated_image))
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                for image_path in annotated_image:
+                    with open(image_path, "rb") as f:
+                        image_data = f.read()
+                        image_name = os.path.basename(image_path)  # 元ファイル名だけを取得
+                        zip_file.writestr(image_name, image_data)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
     
