@@ -57,6 +57,7 @@ uploaded_files = st.file_uploader("Choose an image...",accept_multiple_files=Tru
 
 ress = []
 images = []
+image_names = []
 if uploaded_files is not None:
     with st.expander("annotated images"):
         for uploaded_file in uploaded_files:
@@ -94,26 +95,23 @@ if uploaded_files is not None:
             st.image(annotated_image)
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                for image_path in annotated_image:
-                    with open(image_path, "rb") as f:
-                        image_data = f.read()
-                        image_name = os.path.basename(image_path)  # 元ファイル名だけを取得
-                        zip_file.writestr(image_name, image_data)
+                for i, image in enumerate(annotated_image):
+                    # ndarray → バイナリ画像データに変換
+                    is_success, buffer = cv2.imencode(".png", image)
+                    if not is_success:
+                        continue  # エンコード失敗したらスキップ
+
+                    image_bytes = buffer.tobytes()
+
+        # ZIPファイルに書き込む（ファイル名指定）
+                    filename = image_names[i] if i < len(image_names) else f"image_{i}.png"
+                    zip_file.writestr(filename, image_bytes)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
     
-    # ZIPファイルをメモリ上に作成
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        for image_path in images:
-            with open(image_path, "rb") as f:
-                # zipファイル内のファイル名は元の名前と同じにする
-                zip_file.writestr(image_path, f.read())
-
-    # ストリームの先頭に戻す
     zip_buffer.seek(0)
 
-    # ダウンロードボタン
+# Streamlitでダウンロードボタンを表示
     st.download_button(
         label="画像をZIPで一括ダウンロード",
         data=zip_buffer,
