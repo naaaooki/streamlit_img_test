@@ -99,7 +99,7 @@ if uploaded_files is not None:
             images.append(annotated_image)
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                  # JPEGにエンコード
-                success, encoded_img = cv2.imencode('.jpg', img)
+                success, encoded_img = cv2.imencode('.jpg', annotated_image)
                 if success:
                     zip_file.writestr(f'image_{i+1:03}.jpg', encoded_img.tobytes())
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
