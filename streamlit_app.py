@@ -96,9 +96,10 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
+            images.append(annotated_image)
             zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for idx, img in enumerate(annotated_image):
+                for idx, img in enumerate(images):
         # OpenCVでJPEGエンコード
                     success, encoded_img = cv2.imencode('.jpg', img)
                     if success:
