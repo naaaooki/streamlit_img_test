@@ -108,10 +108,8 @@ if uploaded_files is not None:
                     zip_file.writestr(filename, image_bytes)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
-    
     zip_buffer.seek(0)
-
-# Streamlitでダウンロードボタンを表示
+    # Streamlitでダウンロードボタンを表示
     st.download_button(
         label="画像をZIPで一括ダウンロード",
         data=zip_buffer,
