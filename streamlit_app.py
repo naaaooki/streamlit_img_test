@@ -59,6 +59,7 @@ ress = []
 images = []
 image_names = []
 zip_buffer = io.BytesIO()
+i= 0
 if uploaded_files is not None:
     with st.expander("annotated images"):
         for uploaded_file in uploaded_files:
@@ -99,6 +100,7 @@ if uploaded_files is not None:
                 zip_file.writestr("image.jpg", annotated_image)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
+            i = i+1
     zip_buffer.seek(0)
     # Streamlitでダウンロードボタンを表示
     st.download_button(
