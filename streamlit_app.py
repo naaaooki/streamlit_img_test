@@ -95,24 +95,23 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            images[i] = annotated_image
+            img_bytes = io.BytesIO()
+            annotated_image.save(img_bytes, format='PNG')
+            img_bytes.seek(0)  # 読み取り位置を先頭に
+            images.append((f"image_{i+0}.png", img_bytes))
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
             i = i+1
-    i=1
+    zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        filename = image_names[i] if i < len(image_names) else f"image_{i}.png"
-        zip_file.writestr(filename, annotated_image)
-        i = i+1
-                
-    zip_buffer.seek(0)
-    # Streamlitでダウンロードボタンを表示
+        for filename, img_bytes in images:
+            zip_file.writestr(filename, img_bytes.read())
     st.download_button(
-        label="画像をZIPで一括ダウンロード",
-        data=zip_buffer,
-        file_name="images.zip",
-        mime="application/zip"
-    )
+    label="画像をZIPで一括ダウンロード",
+    data=zip_buffer,
+    file_name="images.zip",
+    mime="application/zip"
+)
     df = pd.DataFrame(ress, columns=["file","xmin","ymin","xmax","ymax", "score","class_id"])
     st.write(df)
 
