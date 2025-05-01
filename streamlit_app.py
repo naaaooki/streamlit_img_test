@@ -97,23 +97,14 @@ if uploaded_files is not None:
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
             images.append(annotated_image)
-            zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for idx, img in enumerate(images):
-        # OpenCVでJPEGエンコード
-                    success, encoded_img = cv2.imencode('.jpg', img)
-                    if success:
-            # バイトデータをZIPに追加
-                        zip_file.writestr(f'image_{idx+1}.jpg', encoded_img.tobytes())
+                 # JPEGにエンコード
+                success, encoded_img = cv2.imencode('.jpg', img)
+                if success:
+                    zip_file.writestr(f'image_{i+1:03}.jpg', encoded_img.tobytes())
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
             i = i+1
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        for filename, img_bytes in images:
-            zip_file.writestr(filename, img_bytes.read())
-    with open('annotated_images.zip', 'wb') as f:
-        f.write(zip_buffer.getvalue())
     st.download_button(
     label="画像をZIPで一括ダウンロード",
     data=zip_buffer,
