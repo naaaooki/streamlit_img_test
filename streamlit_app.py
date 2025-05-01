@@ -96,7 +96,7 @@ if uploaded_files is not None:
                 for image_path in images:
                     with open(image_path, "rb") as f:
             # zipファイル内のファイル名は元の名前と同じにする
-                    zip_file.writestr(image_path, f.read())
+                        zip_file.writestr(image_path, f.read())
 
             # ストリームの先頭に戻す
             zip_buffer.seek(0)
