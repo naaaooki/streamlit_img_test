@@ -101,10 +101,12 @@ if uploaded_files is not None:
                  # JPEGにエンコード
                 success, encoded_img = cv2.imencode('.jpg', annotated_image)
                 if success:
-                    zip_file.writestr(f'image_{i+1:03}.jpg', encoded_img.tobytes())
+                    zip_file.writestr(f'image_{i+0:03}.jpg', encoded_img.tobytes())
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
             i = i+1
+    with open('annotated_images.zip', 'wb') as f:
+        f.write(zip_buffer.getvalue())
     st.download_button(
     label="画像をZIPで一括ダウンロード",
     data=zip_buffer,
