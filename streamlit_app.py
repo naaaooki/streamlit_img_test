@@ -55,7 +55,7 @@ st.title("Image Upload and Analysis")
 uploaded_files = st.file_uploader("Choose an image...",accept_multiple_files=True, type=["jpg", "jpeg", "png","JPG","JPEG","PNG"])
 
 ress = []
-
+images = []
 
 if uploaded_files is not None:
     with st.expander("annotated images"):
@@ -92,27 +92,28 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            # ZIPファイルをメモリ上に作成
-            zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-                for image_path in annotated_image:
-                    with open(image_path, "rb") as f:
-            # zipファイル内のファイル名は元の名前と同じにする
-                        zip_file.writestr(image_path, f.read())
-
-            # ストリームの先頭に戻す
-            zip_buffer.seek(0)
-
-            # ダウンロードボタン
-            st.download_button(
-                label="画像をZIPで一括ダウンロード",
-                data=zip_buffer,
-                file_name="images.zip",
-                mime="application/zip"
-            )
+            images.append(annotated_image)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
+    
+    # ZIPファイルをメモリ上に作成
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+        for image_path in images:
+            with open(image_path, "rb") as f:
+                # zipファイル内のファイル名は元の名前と同じにする
+                zip_file.writestr(image_path, f.read())
 
+    # ストリームの先頭に戻す
+    zip_buffer.seek(0)
+
+    # ダウンロードボタン
+    st.download_button(
+        label="画像をZIPで一括ダウンロード",
+        data=zip_buffer,
+        file_name="images.zip",
+        mime="application/zip"
+    )
     df = pd.DataFrame(ress, columns=["file","xmin","ymin","xmax","ymax", "score","class_id"])
     st.write(df)
 
