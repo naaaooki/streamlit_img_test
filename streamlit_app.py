@@ -58,6 +58,7 @@ uploaded_files = st.file_uploader("Choose an image...",accept_multiple_files=Tru
 ress = []
 images = []
 image_names = []
+zip_buffer = io.BytesIO()
 if uploaded_files is not None:
     with st.expander("annotated images"):
         for uploaded_file in uploaded_files:
@@ -93,7 +94,6 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            zip_buffer = io.BytesIO()
             with zipfile.ZipFile(zip_buffer, "w") as zip_file:
                 for i, image in enumerate(annotated_image):
                     # ndarray → バイナリ画像データに変換
