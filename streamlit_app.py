@@ -9,6 +9,7 @@ import numpy as np
 from utils import YoloxONNX
 import supervision as sv
 import pandas as pd
+import os
 from supervision.detection.core import Detections
 
 @st.cache_resource
@@ -92,6 +93,7 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
+            image_name = os.path.basename(annotated_image)
             images.append(str(annotated_image))
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
