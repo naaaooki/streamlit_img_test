@@ -96,10 +96,14 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            img_bytes = io.BytesIO()
-            annotated_image.save(img_bytes, format='JPG')
-            img_bytes.seek(0)  # 読み取り位置を先頭に
-            images.append((f"image_{i+0}.png", img_bytes))
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                for idx, img in enumerate(annotated_images):
+        # OpenCVでJPEGエンコード
+                    success, encoded_img = cv2.imencode('.jpg', img)
+                    if success:
+            # バイトデータをZIPに追加
+                        zip_file.writestr(f'image_{idx+1}.jpg', encoded_img.tobytes())
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
             i = i+1
