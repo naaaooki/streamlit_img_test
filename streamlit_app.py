@@ -63,47 +63,48 @@ zip_buffer = io.BytesIO()
 i= 1
 if uploaded_files is not None:
     with st.expander("annotated images"):
-        for uploaded_file in uploaded_files:
-            # Open the uploaded image
-            image = Image.open(uploaded_file)
-            # convert to numpy
-            image = np.array(image).astype(np.uint8)
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            bboxes, scores, class_ids = model.inference(image)
-            # annotated = draw(image.copy(), 0.5, bboxes, scores, class_ids,
-            #                  class_names)
-            # filter
-            indices = [i for i, value in enumerate(scores) if value > 0.4]
-            bboxes = bboxes[indices]
-            scores = scores[indices]
-            class_ids = class_ids[indices]
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for uploaded_file in uploaded_files:
+                # Open the uploaded image
+                image = Image.open(uploaded_file)
+                # convert to numpy
+                image = np.array(image).astype(np.uint8)
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                bboxes, scores, class_ids = model.inference(image)
+                # annotated = draw(image.copy(), 0.5, bboxes, scores, class_ids,
+                #                  class_names)
+                # filter
+                indices = [i for i, value in enumerate(scores) if value > 0.4]
+                bboxes = bboxes[indices]
+                scores = scores[indices]
+                class_ids = class_ids[indices]
 
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-            detections = Detections.from_yolox(bboxes, scores, class_ids)
+                detections = Detections.from_yolox(bboxes, scores, class_ids)
 
-            box_annotator = sv.BoxAnnotator()
-            label_annotator = sv.LabelAnnotator(text_scale=1)
+                box_annotator = sv.BoxAnnotator()
+                label_annotator = sv.LabelAnnotator(text_scale=1)
 
-            annotated_image = box_annotator.annotate(
-                scene=image, detections=detections)
+                annotated_image = box_annotator.annotate(
+                    scene=image, detections=detections)
 
-            labels = [
-                f"{class_names[int(idx)]} {conf:.2f}"
-                for idx, conf in zip(class_ids, scores)
-            ]
+                labels = [
+                    f"{class_names[int(idx)]} {conf:.2f}"
+                    for idx, conf in zip(class_ids, scores)
+                ]
 
-            annotated_image = label_annotator.annotate(
-                scene=annotated_image, detections=detections, labels=labels)
-            st.image(annotated_image)
-            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                annotated_image = label_annotator.annotate(
+                    scene=annotated_image, detections=detections, labels=labels)
+                st.image(annotated_image)
+
                  # JPEGにエンコード
                 success, encoded_img = cv2.imencode('.jpg', annotated_image)
                 if success:
                     zip_file.writestr(f'image_{i+0:03}.jpg', encoded_img.tobytes())
-            res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
-            ress.extend(res)
-            i = i+1
+                res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
+                ress.extend(res)
+                i = i+1
     with open('annotated_images.zip', 'wb') as f:
         f.write(zip_buffer.getvalue())
     zip_buffer.seek(0)
