@@ -94,7 +94,9 @@ if uploaded_files is not None:
             annotated_image = label_annotator.annotate(
                 scene=annotated_image, detections=detections, labels=labels)
             st.image(annotated_image)
-            zip_file.writestr("image.jpg", annotated_image)
+            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                filename = image_names[i] if i < len(image_names) else f"image_{i}.png"
+                zip_file.writestr("image.jpg", annotated_image)
             res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
             ress.extend(res)
     zip_buffer.seek(0)
