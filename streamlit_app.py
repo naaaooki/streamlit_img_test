@@ -102,7 +102,7 @@ if uploaded_files is not None:
                  # JPEGにエンコード
                 success, encoded_img = cv2.imencode('.jpg', annotated_image)
                 if success:
-                    zip_file.writestr(f'{file_name}_streamlit.jpg', encoded_img.tobytes())
+                    zip_file.writestr(f'{uploaded_file.name}_streamlit.jpg', encoded_img.tobytes())
                 res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
                 ress.extend(res)
                 i = i+1
