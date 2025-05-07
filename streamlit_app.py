@@ -67,7 +67,6 @@ if uploaded_files is not None:
             for uploaded_file in uploaded_files:
                 # Open the uploaded image
                 image = Image.open(uploaded_file)
-                file_name = uploaded_file.name
                 # convert to numpy
                 image = np.array(image).astype(np.uint8)
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -102,7 +101,7 @@ if uploaded_files is not None:
                  # JPEGにエンコード
                 success, encoded_img = cv2.imencode('.jpg', annotated_image)
                 if success:
-                    zip_file.writestr(f'{uploaded_file.name}_streamlit.jpg', encoded_img.tobytes())
+                    zip_file.writestr(f'{uploaded_file.name[:18]}_streamlit.jpg', encoded_img.tobytes())
                 res = np.c_[[uploaded_file.name]*len(scores),bboxes, scores, class_ids]
                 ress.extend(res)
                 i = i+1
